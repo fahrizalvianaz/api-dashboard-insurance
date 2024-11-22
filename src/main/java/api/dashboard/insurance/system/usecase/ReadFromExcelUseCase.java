@@ -2,8 +2,11 @@ package api.dashboard.insurance.system.usecase;
 
 import api.dashboard.insurance.system.model.common.AdapterResponse;
 import api.dashboard.insurance.system.model.common.GenericResponse;
+import api.dashboard.insurance.system.model.entity.Identity;
 import api.dashboard.insurance.system.model.rqrs.response.ReadFromExcelResponse;
+import api.dashboard.insurance.system.repository.IdentifyRepository;
 import api.dashboard.insurance.system.service.ReadFromExcelService;
+import api.dashboard.insurance.system.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -22,13 +25,21 @@ public class ReadFromExcelUseCase {
     @Autowired
     private ReadFromExcelService readFromExcelService;
 
+    @Autowired
+    private IdentifyRepository identifyRepository;
+
 
     public AdapterResponse<ReadFromExcelResponse> exectute(String month, Integer estimateLoseMin, String token) {
-        Workbook wb;
         AdapterResponse<ReadFromExcelResponse> adapterResponse = new AdapterResponse<>();
-        String pathFile = "";
-        Integer sheet = 0;
-        GenericResponse<ReadFromExcelResponse> result = readFromExcelService.execute(pathFile, sheet, month, estimateLoseMin);
+        GenericResponse<ReadFromExcelResponse> result = new GenericResponse<>();
+        String username = JwtUtil.extractUsername(token);
+        Optional<Identity> identity = identifyRepository.findByUsername(username);
+
+        if (identity.isPresent()) {
+            String pathFile = identity.get().getFileLocation();
+            Integer sheet = identity.get().getSheet();
+            result = readFromExcelService.execute(pathFile, sheet, month, estimateLoseMin);
+        }
 
         if(result.isOK()) {
             adapterResponse.setSuccess().setData(result.getResponse());
