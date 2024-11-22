@@ -1,6 +1,7 @@
 package api.dashboard.insurance.system.controller;
 
 import api.dashboard.insurance.system.model.common.AdapterResponse;
+import api.dashboard.insurance.system.model.rqrs.info.ResponseInfo;
 import api.dashboard.insurance.system.model.rqrs.request.AddDataRequest;
 import api.dashboard.insurance.system.usecase.ReadFromExcelUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,11 @@ public class ReadFromExcelController {
             , @RequestParam Integer estimateLoseMin
             , @RequestHeader(name = "Authorization") String token
     ) {
-        return ResponseEntity.ok(readFromExcelUseCase.exectute(month, estimateLoseMin, token));
+
+        ResponseInfo responseInfo = readFromExcelUseCase.exectute(month, estimateLoseMin, token);
+        return ResponseEntity
+                .status(responseInfo.getHttpStatus())
+                .body(responseInfo.getResponse());
     }
 
 

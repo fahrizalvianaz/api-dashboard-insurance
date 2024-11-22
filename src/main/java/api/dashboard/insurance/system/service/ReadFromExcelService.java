@@ -17,6 +17,7 @@ public class ReadFromExcelService {
         GenericResponse<ReadFromExcelResponse> result = new GenericResponse<>();
         Workbook wb = null;
         int total = 0;
+        int totalNull = 0;
         try {
             wb = WorkbookFactory.create(new File(pathFile));
             Sheet sheet = wb.getSheetAt(sheetNum);
@@ -31,14 +32,15 @@ public class ReadFromExcelService {
                     }
                 }
             }
-        } catch (Exception e) {
-            result.setStatus(Status.error);
-        }
-        ReadFromExcelResponse response = new ReadFromExcelResponse()
-                .setTotal(total);
-        result.setStatus(Status.ok);
-        result.setResponse(response);
+            ReadFromExcelResponse response = new ReadFromExcelResponse()
+                    .setTotal(total);
+            result.setStatus(Status.ok);
+            result.setResponse(response);
 
+        } catch (Exception e) {
+            totalNull++;
+        }
+        System.out.println("Total Null : " + totalNull);
         return result;
 
     }

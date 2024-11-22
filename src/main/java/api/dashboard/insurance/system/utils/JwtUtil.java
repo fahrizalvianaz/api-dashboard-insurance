@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +30,7 @@ public class JwtUtil {
 //    private static String secretKey;
 
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    @Value("${security.jwt.expiration-time}")
-    private long jwtExpiration;
+
 
     public static String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
@@ -38,6 +38,8 @@ public class JwtUtil {
     }
 
     private static String createToken(Map<String, Object> claims, String subject) {
+        String base64EncodedKey = Base64.getEncoder().encodeToString(SECRET_KEY.getEncoded());
+        System.out.println(base64EncodedKey);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
@@ -47,6 +49,12 @@ public class JwtUtil {
     }
 
     public static String extractUsername(String token) {
-        return Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token).getBody().getSubject();
+        String base64EncodedKey = Base64.getEncoder().encodeToString(SECRET_KEY.getEncoded());
+        System.out.println(base64EncodedKey);
+        return Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY).build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 }

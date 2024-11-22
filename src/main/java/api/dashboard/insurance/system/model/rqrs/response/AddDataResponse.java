@@ -6,5 +6,5 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class AddDataResponse {
-    private String description;
+    private String accessToken;
 }

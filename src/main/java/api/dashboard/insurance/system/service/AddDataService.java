@@ -9,6 +9,7 @@ import api.dashboard.insurance.system.model.rqrs.response.ReadFromExcelResponse;
 import api.dashboard.insurance.system.repository.IdentifyRepository;
 import api.dashboard.insurance.system.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,11 +18,13 @@ public class AddDataService {
     @Autowired
     private IdentifyRepository identifyRepository;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     public GenericResponse<AddDataResponse> execute(AddDataRequest request) {
 
         GenericResponse<AddDataResponse> result = new GenericResponse<>();
-
-        String token = JwtUtil.generateToken(request.getUsername());
+        String token = jwtUtil.generateToken(request.getUsername());
         Identity identity = new Identity();
         try {
             identity.setFileLocation(request.getFileLocation());
@@ -29,15 +32,13 @@ public class AddDataService {
             identity.setSheet(request.getSheet());
             identity.setToken(token);
             identifyRepository.save(identity);
+            AddDataResponse response = new AddDataResponse()
+                    .setAccessToken(token);
+            result.setStatus(Status.ok);
+            result.setResponse(response);
         } catch (Exception e) {
-            result.setStatus(Status.error);
+            result.setStatus(Status.error).setException(e);
         }
-
-        AddDataResponse response = new AddDataResponse()
-                .setDescription("Add data to db done");
-
-        result.setStatus(Status.ok);
-        result.setResponse(response);
         return result;
     }
 }
