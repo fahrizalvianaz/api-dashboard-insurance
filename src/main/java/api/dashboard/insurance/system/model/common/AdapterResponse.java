@@ -42,6 +42,5 @@ public class AdapterResponse<T> {
         return this;
     }
 
-
 }
 

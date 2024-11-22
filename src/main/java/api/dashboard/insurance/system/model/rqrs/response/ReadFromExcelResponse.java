@@ -12,9 +12,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ReadFromExcelResponse {
 
-    private String noClaim;
-    private String noPolis;
-    private String noInsurance;
-    private String total;
+    private Integer total;
 
 }
