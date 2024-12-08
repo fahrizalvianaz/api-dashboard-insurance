@@ -18,11 +18,10 @@ public class ReadFromExcelController {
     @GetMapping("read")
     public ResponseEntity<?> readFromExcel(
             @RequestParam String month
-            , @RequestParam Integer estimateLoseMin
             , @RequestHeader(name = "Authorization") String token
     ) {
 
-        ResponseInfo responseInfo = readFromExcelUseCase.exectute(month, estimateLoseMin, token);
+        ResponseInfo responseInfo = readFromExcelUseCase.exectute(month, token);
         return ResponseEntity
                 .status(responseInfo.getHttpStatus())
                 .body(responseInfo.getResponse());

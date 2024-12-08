@@ -30,21 +30,23 @@ public class ReadFromExcelUseCase {
     @Autowired
     private IdentifyRepository identifyRepository;
 
+    @Autowired
+    private JwtUtil jwtUtil;
 
-    public ResponseInfo exectute(String month, Integer estimateLoseMin, String token) {
+    public ResponseInfo exectute(String month, String token) {
         ResponseInfo responseInfo = new ResponseInfo();
         HttpStatus httpStatus = HttpStatus.OK;
         AdapterResponse<ReadFromExcelResponse> adapterResponse = new AdapterResponse<>();
         GenericResponse<ReadFromExcelResponse> genericResponse = new GenericResponse<>();
         String jwt = token.substring(7);
         System.out.println(jwt);
-        String username = JwtUtil.extractUsername(jwt);
+        String username = jwtUtil.extractUsername(jwt);
         Optional<Identity> identity = identifyRepository.findByUsername(username);
 
         if (identity.isPresent()) {
             String pathFile = identity.get().getFileLocation();
             Integer sheet = identity.get().getSheet();
-            genericResponse = readFromExcelService.execute(pathFile, sheet, month, estimateLoseMin);
+            genericResponse = readFromExcelService.execute(pathFile, sheet, month);
         }
 
         if(genericResponse.isOK()) {
@@ -52,6 +54,8 @@ public class ReadFromExcelUseCase {
         } else if (genericResponse.isError()) {
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
             adapterResponse.setCode("99").setMessage(genericResponse.getException().getDescription());
+        } else {
+
         }
 
         responseInfo

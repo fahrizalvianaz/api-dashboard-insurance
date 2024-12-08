@@ -7,10 +7,7 @@ import api.dashboard.insurance.system.model.rqrs.response.AddDataResponse;
 import api.dashboard.insurance.system.usecase.AddDataUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -28,5 +25,12 @@ public class AddDataController {
         return ResponseEntity
                 .status(responseInfo.getHttpStatus())
                 .body(responseInfo.getResponse());
+    }
+
+    @GetMapping("test")
+    public ResponseEntity<?> test(
+
+    ) {
+        return ResponseEntity.ok("Niceee");
     }
 }

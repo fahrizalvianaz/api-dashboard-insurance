@@ -4,6 +4,7 @@ import api.dashboard.insurance.system.model.entity.Identity;
 import api.dashboard.insurance.system.repository.IdentifyRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,35 +27,38 @@ public class JwtUtil {
     @Autowired
     private IdentifyRepository identifyRepository;
 
-//    @Value("${security.jwt.secret-key}")
-//    private static String secretKey;
+    @Value("${security.jwt.secret-key}")
+    private String secretKey;
 
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+//    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
 
-    public static String generateToken(String username) {
+    public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, username);
     }
 
-    private static String createToken(Map<String, Object> claims, String subject) {
-        String base64EncodedKey = Base64.getEncoder().encodeToString(SECRET_KEY.getEncoded());
-        System.out.println(base64EncodedKey);
+    private String createToken(Map<String, Object> claims, String subject) {
+//        String base64EncodedKey = Base64.getEncoder().encodeToString(SECRET_KEY.getEncoded());
+//        System.out.println(base64EncodedKey);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .signWith(SECRET_KEY)
+                .signWith(getLoginKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public static String extractUsername(String token) {
-        String base64EncodedKey = Base64.getEncoder().encodeToString(SECRET_KEY.getEncoded());
-        System.out.println(base64EncodedKey);
+    public String extractUsername(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY).build()
+                .setSigningKey(getLoginKey()).build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    private Key getLoginKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
