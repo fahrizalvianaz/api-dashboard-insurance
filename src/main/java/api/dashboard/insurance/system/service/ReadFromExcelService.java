@@ -29,7 +29,7 @@ public class ReadFromExcelService {
             Sheet sheet = wb.getSheetAt(sheetNum);
 
             sheet.forEach(row -> {
-                if (row.getRowNum() == 0) { // Skip the header row
+                if (row.getRowNum() == 0) {
                     return;
                 }
 
