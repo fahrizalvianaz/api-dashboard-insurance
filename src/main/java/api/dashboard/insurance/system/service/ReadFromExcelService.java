@@ -43,11 +43,17 @@ public class ReadFromExcelService {
                         estimateLoss.ifPresent(loss -> {
                             if (loss >= 100000000) {
                                 totalOverThan100M.getAndIncrement();
-                            } else if (loss >= 50000000) {
+                            }
+
+                            if (loss >= 50000000) {
                                 totalOverThan50M.getAndIncrement();
-                            } else if (loss >= 25000000) {
+                            }
+
+                            if (loss >= 25000000) {
                                 totalOverThan25M.getAndIncrement();
-                            } else {
+                            }
+
+                            if(loss < 25000000) {
                                 totalLessThan25M.getAndIncrement();
                             }
                         });
