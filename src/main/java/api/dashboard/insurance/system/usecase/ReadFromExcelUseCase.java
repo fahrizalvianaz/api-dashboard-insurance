@@ -44,9 +44,7 @@ public class ReadFromExcelUseCase {
         Optional<Identity> identity = identifyRepository.findByUsername(username);
 
         if (identity.isPresent()) {
-            String pathFile = identity.get().getFileLocation();
-            Integer sheet = identity.get().getSheet();
-            genericResponse = readFromExcelService.execute(pathFile, sheet, month);
+            genericResponse = readFromExcelService.execute(month);
         }
 
         if(genericResponse.isOK()) {

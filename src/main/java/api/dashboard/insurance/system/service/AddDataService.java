@@ -46,32 +46,37 @@ public class AddDataService {
         String token = jwtUtil.generateToken(request.getUsername());
         Identity identity = new Identity();
         Workbook wb = null;
-        try (FileInputStream inp = new FileInputStream(request.getFileLocation())){
-            wb = WorkbookFactory.create(inp);
-            Sheet sheet = wb.getSheetAt(request.getSheet());
-            sheet.forEach(row -> {
-                if (row.getRowNum() == 0) {
-                    return;
-                }
-                Optional<Cell> claimNumber = Optional.ofNullable(row.getCell(0));
-                Optional<Cell> entryDate = Optional.ofNullable(row.getCell(15));
-                Optional<Integer> estimateLoss = Optional.ofNullable(row.getCell(18))
-                        .map(cell -> (int) cell.getNumericCellValue());
-                LocalDateTime localDateTime = entryDate.get().getLocalDateTimeCellValue();
-                Month month = localDateTime.getMonth();
-                totalOverThan(estimateLoss, month.name(), claimNumber.get().getStringCellValue());
 
-            });
-            wb.close();
-        } catch (Exception e) {
-            result.setStatus(Status.error).setException(e);
-        }
         try {
             identity.setFileLocation(request.getFileLocation());
             identity.setUsername(request.getUsername());
             identity.setSheet(request.getSheet());
             identity.setToken(token);
             identifyRepository.save(identity);
+            try (FileInputStream inp = new FileInputStream(request.getFileLocation())){
+                wb = WorkbookFactory.create(inp);
+                Sheet sheet = wb.getSheetAt(request.getSheet());
+                sheet.forEach(row -> {
+                    if (row.getRowNum() == 0) {
+                        return;
+                    }
+                    Optional<Cell> claimNumber = Optional.ofNullable(row.getCell(0));
+                    Optional<Cell> entryDate = Optional.ofNullable(row.getCell(15));
+                    Optional<Integer> estimateLoss = Optional.ofNullable(row.getCell(18))
+                            .map(cell -> (int) cell.getNumericCellValue());
+                    if (entryDate.isEmpty()) {
+                        String monthKey = "UNKNOWN";
+                        redisTemplate.opsForSet().add(monthKey, UUID.randomUUID() + ":NULL");
+                    } else {
+                        LocalDateTime localDateTime = entryDate.get().getLocalDateTimeCellValue();
+                        Month month = localDateTime.getMonth();
+                        totalOverThan(estimateLoss, month.name(), claimNumber.get().getStringCellValue(), token);
+                    }
+                });
+                wb.close();
+            } catch (Exception e) {
+                result.setStatus(Status.error).setException(e);
+            }
             AddDataResponse response = new AddDataResponse()
                     .setAccessToken(token);
             result.setStatus(Status.ok);
@@ -83,34 +88,32 @@ public class AddDataService {
         }
 
 
-     private void totalOverThan(Optional<Integer> estimateLoss, String month, String claimNumber) {
+     private void totalOverThan(Optional<Integer> estimateLoss, String month, String claimNumber, String token) {
+
         estimateLoss.ifPresent(loss -> {
+            String value =  claimNumber + ":" + token + ":" + CACHE_KEY_PREFIX + loss;
             if (loss >= 100000000) {
-                String key =  UUID.randomUUID() + ":" + claimNumber + ":" + CACHE_KEY_PREFIX + loss;
 //                redisTemplate.opsForValue().set(key, );
-                String monthKey = "month:" + month + " totalOverThan100M";
-                redisTemplate.opsForSet().add(monthKey, key);
+                String monthKey = month + ":totalOverThan100M";
+                redisTemplate.opsForSet().add(monthKey, UUID.randomUUID() + ":" + value);
             }
 
             if (loss >= 50000000) {
-                String key =  UUID.randomUUID() + ":" + claimNumber + ":" + CACHE_KEY_PREFIX + loss;
 //                redisTemplate.opsForValue().set(key, );
-                String monthKey = "month:" + month + " totalOverThan50M";
-                redisTemplate.opsForSet().add(monthKey, key);
+                String monthKey = month + ":totalOverThan50M";
+                redisTemplate.opsForSet().add(monthKey, UUID.randomUUID() + ":" + value);
             }
 
             if (loss >= 25000000) {
-                String key =  UUID.randomUUID() + ":" + claimNumber + ":" + CACHE_KEY_PREFIX + loss;
 //                redisTemplate.opsForValue().set(key, );
-                String monthKey = "month:" + month + " totalOverThan25M";
-                redisTemplate.opsForSet().add(monthKey, key);
+                String monthKey = month + ":totalOverThan25M";
+                redisTemplate.opsForSet().add(monthKey, UUID.randomUUID() + ":" + value);
             }
 
-            if(loss < 25000000) {
-                String key =  UUID.randomUUID() + ":" + claimNumber + ":" + CACHE_KEY_PREFIX + loss;
+            if (loss < 25000000) {
 //                redisTemplate.opsForValue().set(key, );
-                String monthKey = "month:" + month + " totalLessThan25M";
-                redisTemplate.opsForSet().add(monthKey, key);
+                String monthKey = month + ":totalLessThan25M";
+                redisTemplate.opsForSet().add(monthKey, UUID.randomUUID() + ":" + value);
             }
         });
     }

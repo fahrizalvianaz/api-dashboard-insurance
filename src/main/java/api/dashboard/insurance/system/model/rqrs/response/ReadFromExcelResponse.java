@@ -12,10 +12,10 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ReadFromExcelResponse {
 
-    private int totalOverThan100M = 0;
-    private int totalOverThan50M = 0;
-    private int totalOverThan25M = 0;
-    private int totalLessThan25M = 0;
-    private int totalUnknown = 0;
+    private long totalOverThan100M = 0;
+    private long totalOverThan50M = 0;
+    private long totalOverThan25M = 0;
+    private long totalLessThan25M = 0;
+    private long totalUnknown = 0;
 
 }
