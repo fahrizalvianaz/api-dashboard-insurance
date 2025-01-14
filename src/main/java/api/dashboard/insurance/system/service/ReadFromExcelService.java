@@ -44,15 +44,12 @@ public class ReadFromExcelService {
                             if (loss >= 100000000) {
                                 totalOverThan100M.getAndIncrement();
                             }
-
                             if (loss >= 50000000) {
                                 totalOverThan50M.getAndIncrement();
                             }
-
                             if (loss >= 25000000) {
                                 totalOverThan25M.getAndIncrement();
                             }
-
                             if(loss < 25000000) {
                                 totalLessThan25M.getAndIncrement();
                             }
@@ -73,7 +70,10 @@ public class ReadFromExcelService {
         wb.close();
         } catch (Exception e) {
             result.setStatus(Status.error).setException(e);
+        } catch (OutOfMemoryError e) {
+            result.setStatus(Status.error);
         }
+
         System.out.println("Total Null : " + totalNull);
         return result;
 
