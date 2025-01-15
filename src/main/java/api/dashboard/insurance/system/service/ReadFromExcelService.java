@@ -22,23 +22,22 @@ public class ReadFromExcelService {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    public GenericResponse<ReadFromExcelResponse> execute(String month) {
+    public GenericResponse<ReadFromExcelResponse> execute(String token, String month) {
         GenericResponse<ReadFromExcelResponse> result = new GenericResponse<>();
         SetOperations<String, String> setOps = redisTemplate.opsForSet();
-
+        String key = token + ":" + month;
         try {
-        Long totalOverThan100MCache = setOps.size(month + ":totalOverThan100M");
-        Long totalOverThan50MCache = setOps.size(month + ":totalOverThan50M");
-        Long totalOverThan25MCache = setOps.size(month + ":totalOverThan25M");
-        Long totalLessThan25MCache = setOps.size(month + ":totalLessThan25M");
-        Long totalUnknownCache = setOps.size("UNKNOWN");
+        Long totalOverThan100MCache = setOps.size(key + ":totalOverThan100M");
+        Long totalOverThan50MCache = setOps.size(key + ":totalOverThan50M");
+        Long totalOverThan25MCache = setOps.size(key + ":totalOverThan25M");
+        Long totalLessThan25MCache = setOps.size(key + ":totalLessThan25M");
+        Long totalUnknownCache = setOps.size(token + ":UNKNOWN");
         if(totalOverThan100MCache == null) totalOverThan100MCache = 0L;
         if(totalOverThan50MCache == null) totalOverThan50MCache = 0L;
         if(totalOverThan25MCache == null) totalOverThan25MCache = 0L;
         if(totalLessThan25MCache == null) totalLessThan25MCache = 0L;
         if(totalUnknownCache == null) totalUnknownCache = 0L;
 
-        System.out.println("total" + totalOverThan100MCache);
         ReadFromExcelResponse response = new ReadFromExcelResponse()
                 .setTotalOverThan100M(totalOverThan100MCache)
                 .setTotalOverThan50M(totalOverThan50MCache)

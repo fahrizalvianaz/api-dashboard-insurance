@@ -65,7 +65,7 @@ public class AddDataService {
                     Optional<Integer> estimateLoss = Optional.ofNullable(row.getCell(18))
                             .map(cell -> (int) cell.getNumericCellValue());
                     if (entryDate.isEmpty()) {
-                        String monthKey = "UNKNOWN";
+                        String monthKey = token + ":UNKNOWN";
                         redisTemplate.opsForSet().add(monthKey, UUID.randomUUID() + ":NULL");
                     } else {
                         LocalDateTime localDateTime = entryDate.get().getLocalDateTimeCellValue();
@@ -91,29 +91,30 @@ public class AddDataService {
      private void totalOverThan(Optional<Integer> estimateLoss, String month, String claimNumber, String token) {
 
         estimateLoss.ifPresent(loss -> {
-            String value =  claimNumber + ":" + token + ":" + CACHE_KEY_PREFIX + loss;
+            String value =  claimNumber +  ":" + CACHE_KEY_PREFIX + loss;
+            String monthKey = token + ":" + month;
             if (loss >= 100000000) {
 //                redisTemplate.opsForValue().set(key, );
-                String monthKey = month + ":totalOverThan100M";
-                redisTemplate.opsForSet().add(monthKey, UUID.randomUUID() + ":" + value);
+                String key = monthKey + ":totalOverThan100M";
+                redisTemplate.opsForSet().add(key, UUID.randomUUID() + ":" + value);
             }
 
             if (loss >= 50000000) {
 //                redisTemplate.opsForValue().set(key, );
-                String monthKey = month + ":totalOverThan50M";
-                redisTemplate.opsForSet().add(monthKey, UUID.randomUUID() + ":" + value);
+                String key = monthKey + ":totalOverThan50M";
+                redisTemplate.opsForSet().add(key, UUID.randomUUID() + ":" + value);
             }
 
             if (loss >= 25000000) {
 //                redisTemplate.opsForValue().set(key, );
-                String monthKey = month + ":totalOverThan25M";
-                redisTemplate.opsForSet().add(monthKey, UUID.randomUUID() + ":" + value);
+                String key = monthKey + ":totalOverThan25M";
+                redisTemplate.opsForSet().add(key, UUID.randomUUID() + ":" + value);
             }
 
             if (loss < 25000000) {
 //                redisTemplate.opsForValue().set(key, );
-                String monthKey = month + ":totalLessThan25M";
-                redisTemplate.opsForSet().add(monthKey, UUID.randomUUID() + ":" + value);
+                String key = monthKey + ":totalLessThan25M";
+                redisTemplate.opsForSet().add(key, UUID.randomUUID() + ":" + value);
             }
         });
     }

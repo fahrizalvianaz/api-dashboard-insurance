@@ -39,12 +39,11 @@ public class ReadFromExcelUseCase {
         AdapterResponse<ReadFromExcelResponse> adapterResponse = new AdapterResponse<>();
         GenericResponse<ReadFromExcelResponse> genericResponse = new GenericResponse<>();
         String jwt = token.substring(7);
-        System.out.println(jwt);
         String username = jwtUtil.extractUsername(jwt);
         Optional<Identity> identity = identifyRepository.findByUsername(username);
 
         if (identity.isPresent()) {
-            genericResponse = readFromExcelService.execute(month);
+            genericResponse = readFromExcelService.execute(jwt,month);
         }
 
         if(genericResponse.isOK()) {
