@@ -6,8 +6,10 @@ import api.dashboard.insurance.system.model.rqrs.request.AddDataRequest;
 import api.dashboard.insurance.system.model.rqrs.response.AddDataResponse;
 import api.dashboard.insurance.system.usecase.AddDataUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -17,15 +19,17 @@ public class AddDataController {
     @Autowired
     private AddDataUseCase addDataUseCase;
 
-    @PostMapping("add")
+    @PostMapping(value = "add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addData(
-            @RequestBody AddDataRequest addDataRequest
+            @RequestBody MultipartFile file,
+            @RequestParam(name = "username") String username
     ) {
-        ResponseInfo responseInfo = addDataUseCase.execute(addDataRequest);
+        ResponseInfo responseInfo = addDataUseCase.execute(username, file);
         return ResponseEntity
                 .status(responseInfo.getHttpStatus())
                 .body(responseInfo.getResponse());
     }
+
 
     @GetMapping("test")
     public ResponseEntity<?> test(

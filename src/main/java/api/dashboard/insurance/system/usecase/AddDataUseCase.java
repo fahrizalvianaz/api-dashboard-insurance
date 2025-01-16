@@ -10,6 +10,7 @@ import api.dashboard.insurance.system.service.AddDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.html.HTMLTableCaptionElement;
 
 @Service
@@ -18,11 +19,11 @@ public class AddDataUseCase {
     @Autowired
     private AddDataService addDataService;
 
-    public ResponseInfo execute(AddDataRequest request) {
+    public ResponseInfo execute(String username, MultipartFile file) {
         ResponseInfo responseInfo = new ResponseInfo();
         HttpStatus httpStatus = HttpStatus.OK;
         AdapterResponse<AddDataResponse> adapterResponse = new AdapterResponse<>();
-        GenericResponse<AddDataResponse> genericResponse = addDataService.execute(request);
+        GenericResponse<AddDataResponse> genericResponse = addDataService.execute(username, file);
         if(genericResponse.isOK()) {
             adapterResponse.setData(genericResponse.getResponse());
         } else if (genericResponse.isError()) {

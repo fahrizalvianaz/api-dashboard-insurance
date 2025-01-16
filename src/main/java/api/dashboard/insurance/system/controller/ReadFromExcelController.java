@@ -27,5 +27,14 @@ public class ReadFromExcelController {
                 .body(responseInfo.getResponse());
     }
 
+//    public ResponseEntity<?> refreshData(
+//            @RequestHeader(name = "Authorization") String token
+//    ) {
+//        ResponseInfo responseInfo = readFromExcelUseCase.refreshData(token);
+//        return ResponseEntity
+//                .status(responseInfo.getHttpStatus())
+//                .body(responseInfo.getResponse());
+//    }
+
 
 }

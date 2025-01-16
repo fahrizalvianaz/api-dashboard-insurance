@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jdk.jfr.Enabled;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @Table(name = "identity", schema = "public")
@@ -11,16 +14,11 @@ public class Identity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_identity")
+    private Long idUser;
 
     @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(name = "file_location")
-    private String fileLocation;
 
-    private Integer sheet;
-
-    @Column(unique = true, nullable = false)
-    private String token;
 }
